@@ -8,7 +8,13 @@ var Touchscreen = (function () {
 	var module = {};
 	
 	module.init = function() {
-		LeapBootstrap.init();
+		this.listener = new Leap.Listener();
+		this.listener.onConnect = function(controller) {
+			document.getElementById("main").style.visibility = "visible";
+			document.getElementById("connection").innerHTML = "WebSocket connection open!";
+		};
+		this.controller = new Leap.Controller("ws://localhost:6437/");
+		this.controller.addListener(this.listener);
 		this.initView();
 	}
 	
@@ -29,8 +35,9 @@ var Touchscreen = (function () {
 		});
 	
 		function captureCalibratePoint() {
-			module.capturedPoints.push(module.currentFrame.pointables[0].tipPosition);
-			module.output.append('Point captured ' + module.currentFrame.pointables[0].tipPosition[2] + '<br>');
+			var point = module.controller.frame().pointables()[0].tipPosition();
+			module.capturedPoints.push(point);
+			module.output.append(point + '<br>');
 			if (module.capturedPoints.length > 2) module.initPlane();
 		}
 	
@@ -38,6 +45,30 @@ var Touchscreen = (function () {
 
 	module.initPlane = function() {
 		this.plane = new Plane(this.capturedPoints[0],this.capturedPoints[1],this.capturedPoints[2]);
+		
+		this.listener.onFrame = function(controller){
+			var pointableList = controller.frame().pointables();
+			var isHit = false;
+			
+			for(index = 0; index < pointableList.count(); index++){
+			
+				var pointable = pointableList[index];
+				var hit = Touchscreen.plane.rayIntersect(pointable.tipPosition(), pointable.direction());
+	
+				if (hit && hit.distance < 2) {
+					isHit = true;
+				}
+			}
+			
+			console.log(isHit);
+		
+			if (isHit) {
+				$('body').css('background-color','#ccc');
+			} else {
+				$('body').css('background-color','#fff');
+			}
+		};
+		
 	};
 	
 	return module;

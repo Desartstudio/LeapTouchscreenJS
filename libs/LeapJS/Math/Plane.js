@@ -7,9 +7,9 @@ var Plane = function(point1, point2, point3){
 	this.point1 = new Leap.Vector(point1);
 	this.point2 = new Leap.Vector(point2);
 	this.point3 = new Leap.Vector(point3);
-}
+};
 
-Plane.prototype.fromNormal = function(point1, normal) {
+Plane.prototype.fromNormal = function(point1, normal){
 	
 	var ortho1 = new Leap.Vector();
 	
@@ -32,7 +32,7 @@ Plane.prototype.fromNormal = function(point1, normal) {
 	plane.normal = function(){ return this._normal; };
 	
 	return plane;
-}
+};
 
 // vector normal()
 Plane.prototype.normal = function(){
@@ -54,7 +54,7 @@ Plane.prototype.normal = function(){
 	
 	this.normal = function(){ return this._normal; };
 	return this._normal;
-}
+};
 
 // vector unitnormal()
 Plane.prototype.unitnormal = function(){
@@ -66,16 +66,10 @@ Plane.prototype.unitnormal = function(){
 	
 	this.unitnormal = function(){ return this._unitnormal; };
 	return this._unitnormal;
-}
+};
 
 // { position: vector, distance: float } pointIntersect( vector point )
 Plane.prototype.pointIntersect = function(point){
-	
-	point = {
-		x:point[0], 
-		y:point[1], 
-		z:point[2]
-	};
 	
     var u = this.unitnormal();
     var d = u.dot(this.point1.minus(point));
@@ -83,7 +77,7 @@ Plane.prototype.pointIntersect = function(point){
     
     return {position: p, distance: d};
 	
-}
+};
 
 // rayIntersection memo
 Plane.prototype._rayIntersectCommon = function(){
@@ -92,12 +86,12 @@ Plane.prototype._rayIntersectCommon = function(){
 	this.x13 = this.point1.x - this.point3.x;
 	this.x32 = this.point3.x - this.point2.x;
 	
-	this.yz23 = this.point2.y*point3.z - this.point3.y*point2.z;
-	this.yz13 = this.point1.y*point3.z - this.point3.y*point1.z;
-	this.yz12 = this.point1.y*point2.z - this.point2.y*point1.z;
+	this.yz23 = this.point2.y*this.point3.z - this.point3.y*this.point2.z;
+	this.yz13 = this.point1.y*this.point3.z - this.point3.y*this.point1.z;
+	this.yz12 = this.point1.y*this.point2.z - this.point2.y*this.point1.z;
 	
 	this._rayIntersectCommon = function(){};
-}
+};
 
 // { position: vector, distance: float } rayIntersect( vector rayPosition, vector rayDirection )
 Plane.prototype.rayIntersect = function(rayPosition, rayDirection){
@@ -123,7 +117,7 @@ Plane.prototype.rayIntersect = function(rayPosition, rayDirection){
 	var n = (this.x21*yz34 + this.x13*yz24 + x41*this.yz23 + this.x32*yz14 + x24*this.yz13 + x43*this.yz12);
 	var t =  -n/d;
 	
-	if(t < 0) return null;
+	//if(t < 0) return null;
 	
 	var x = rayPosition.x + rayDirection.x*t;
 	var y = rayPosition.y + rayDirection.y*t;
@@ -132,4 +126,4 @@ Plane.prototype.rayIntersect = function(rayPosition, rayDirection){
 	var distance = t*rayDirection.magnitude();
 	
 	return {position: new Leap.Vector([x, y, z]), distance: distance};
-}
+};
