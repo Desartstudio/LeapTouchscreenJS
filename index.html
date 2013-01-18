@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leap Touchscreen Demo</title>
+
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="src/leapbootstrap.js"></script>
+	<script src="src/main.js"></script>
+
+	<script src="libs/LeapJS/Leap.js"></script>
+	<script src="libs/LeapJS/Math/Plane.js"></script>
+
+	<link rel="stylesheet" href="src/main.css">
+</head>
+<body onload="Touchscreen.init();">
+	<h1 id="header">Leap Touchscreen Demo</h1>
+	<div id="calibrate">Calibrate</div>
+	<div id="connection">WebSocket not connected</div>
+
+	<div id="main" style="visibility:hidden">
+		<div id="output"></div>
+	</div>
+
+</body>
+</html>
