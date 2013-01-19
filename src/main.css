@@ -24,6 +24,42 @@ body {
 	background-color: #c3cccc;
 }
 
+#point1 {
+	width: 20px;
+	height: 20px;
+	padding: 10px;
+	margin: -20px;
+	position: fixed;
+	left: 25%;
+	top: 50%;
+	text-align: center;
+	background-color: #c3cccc;
+}
+
+#point2 {
+	width: 20px;
+	height: 20px;
+	padding: 10px;
+	margin: -20px;
+	position: fixed;
+	left: 25%;
+	top: 25%;
+	text-align: center;
+	background-color: #c3cccc;
+}
+
+#point3 {
+	width: 20px;
+	height: 20px;
+	padding: 10px;
+	margin: -20px;
+	position: fixed;
+	left: 75%;
+	top: 50%;
+	text-align: center;
+	background-color: #c3cccc;
+}
+
 #connection {
 	text-align: center;
 	margin: 0px auto;
@@ -35,6 +71,6 @@ body {
 	position: fixed;
 	right: 20px;
 	bottom: 20px;
-	width: 200px;
+	width: 250px;
 	height: 90px;
 }
