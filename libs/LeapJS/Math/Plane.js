@@ -117,7 +117,7 @@ Plane.prototype.rayIntersect = function(rayPosition, rayDirection){
 	var n = (this.x21*yz34 + this.x13*yz24 + x41*this.yz23 + this.x32*yz14 + x24*this.yz13 + x43*this.yz12);
 	var t =  -n/d;
 	
-	//if(t < 0) return null;
+	if(t < 0) return null;
 	
 	var x = rayPosition.x + rayDirection.x*t;
 	var y = rayPosition.y + rayDirection.y*t;

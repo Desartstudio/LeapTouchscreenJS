@@ -97,9 +97,18 @@ var Touchscreen = (function () {
 			for(index = 0; index < pointableList.count(); index++){
 			
 				var pointable = pointableList[index];
+				
+				var project = Touchscreen.plane.rayIntersect(pointable.tipPosition(), pointable.direction());
+				if(project){
+					var screenHit = module.translateToScreen(project.position);
+					var el = document.createElement("div");
+					el.classList.add("ghost");
+					el.style.cssText = "left:"+screenHit.x+"px;top:"+screenHit.y+"px;";
+					document.body.appendChild(el);
+				}
+				
 				var hit = Touchscreen.plane.pointIntersect(pointable.tipPosition());
-	
-				if (hit && hit.distance < 10) {
+				if (hit && hit.distance < 2) {
 					isHit = true;
 					
 					var screenHit = module.translateToScreen(hit.position);

@@ -42,6 +42,14 @@ body {
 	background-color: #000000;
 }
 
+.ghost {
+	width: 10px;
+	height: 10px;
+	margin: -5px;
+	position: fixed;
+	background-color: rgba(200,200,200,.3);
+}
+
 #point1 {
 	left: 25%;
 	top: 50%;
