@@ -15,6 +15,10 @@ var Touchscreen = (function () {
 		};
 		this.controller = new Leap.Controller("ws://localhost:6437/");
 		this.controller.addListener(this.listener);
+		var canvas = $('#canvas1')[0];
+		canvas.width = document.width;
+		canvas.height = document.height;
+		this.context = canvas.getContext("2d");
 		this.initView();
 	}
 	
@@ -56,6 +60,9 @@ var Touchscreen = (function () {
 			module.output.append(point + '<br>');
 			$('#point3')[0].style.visibility = 'hidden';
 			$('#calibrate').off('click');
+			$('#calibrate')[0].style.visibility = 'hidden';
+			$('#connection')[0].style.visibility = 'hidden';
+			$('#canvas1')[0].style.visibility = 'visible';
 			module.initPlane();
 		}
 	}
@@ -101,10 +108,10 @@ var Touchscreen = (function () {
 				var project = Touchscreen.plane.rayIntersect(pointable.tipPosition(), pointable.direction());
 				if(project){
 					var screenHit = module.translateToScreen(project.position);
-					var el = document.createElement("div");
-					el.classList.add("ghost");
-					el.style.cssText = "left:"+screenHit.x+"px;top:"+screenHit.y+"px;";
-					document.body.appendChild(el);
+					module.context.beginPath();
+					module.context.arc(screenHit.x, screenHit.y, 10, 0, 2 * Math.PI, false);
+					module.context.fillStyle = 'rgba(200,200,200,.3)';
+					module.context.fill();
 				}
 				
 				var hit = Touchscreen.plane.pointIntersect(pointable.tipPosition());
@@ -112,10 +119,10 @@ var Touchscreen = (function () {
 					isHit = true;
 					
 					var screenHit = module.translateToScreen(hit.position);
-					var el = document.createElement("div");
-					el.classList.add("art");
-					el.style.cssText = "left:"+screenHit.x+"px;top:"+screenHit.y+"px;";
-					document.body.appendChild(el);
+					module.context.beginPath();
+					module.context.arc(screenHit.x, screenHit.y, 5, 0, 2 * Math.PI, false);
+					module.context.fillStyle = 'rgba(0,0,0,1)';
+					module.context.fill();
 				}
 			}
 			
