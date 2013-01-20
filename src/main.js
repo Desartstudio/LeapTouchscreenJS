@@ -71,8 +71,8 @@ var Touchscreen = (function () {
 	
 	module.translateToScreen = function(point){
 		var direction = point.minus(this.screen.origin);
-		var y = this.screen.yu.dot(direction)/this.screen.yscale;
-		var x = this.screen.xu.dot(direction)/this.screen.xscale;
+		var y = this.screen.yu.dot(direction);
+		var x = this.screen.xu.dot(direction);
 		return {x: x, y: y};
 	};
 
@@ -85,10 +85,10 @@ var Touchscreen = (function () {
 		this.screen.origin = this.points[1].plus(this.points[1].minus(this.screen.center));
 		var yv = this.points[0].minus(this.points[1]);
 		var xv = this.points[2].minus(this.points[0]);
-		this.screen.yu = yv.normalized();
-		this.screen.xu = xv.normalized();
-		this.screen.yscale = 4*yv.magnitude()/document.height;
-		this.screen.xscale = 2*xv.magnitude()/document.width;
+		var yscale = 4*yv.magnitude()/document.height;
+		var xscale = 2*xv.magnitude()/document.width;
+		this.screen.yu = yv.normalized().dividedBy(yscale);
+		this.screen.xu = xv.normalized().dividedBy(xscale);
 		
 		this.listener.onFrame = function(controller){
 			var pointableList = controller.frame().pointables();
@@ -104,7 +104,7 @@ var Touchscreen = (function () {
 					
 					var screenHit = module.translateToScreen(hit.position);
 					var el = document.createElement("div");
-					el.classList.add("point");
+					el.classList.add("art");
 					el.style.cssText = "left:"+screenHit.x+"px;top:"+screenHit.y+"px;";
 					document.body.appendChild(el);
 				}
