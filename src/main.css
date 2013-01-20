@@ -24,40 +24,29 @@ body {
 	background-color: #c3cccc;
 }
 
-#point1 {
+.point {
 	width: 20px;
 	height: 20px;
 	padding: 10px;
 	margin: -20px;
 	position: fixed;
-	left: 25%;
-	top: 50%;
 	text-align: center;
 	background-color: #c3cccc;
+}
+
+#point1 {
+	left: 25%;
+	top: 50%;
 }
 
 #point2 {
-	width: 20px;
-	height: 20px;
-	padding: 10px;
-	margin: -20px;
-	position: fixed;
 	left: 25%;
 	top: 25%;
-	text-align: center;
-	background-color: #c3cccc;
 }
 
 #point3 {
-	width: 20px;
-	height: 20px;
-	padding: 10px;
-	margin: -20px;
-	position: fixed;
 	left: 75%;
 	top: 50%;
-	text-align: center;
-	background-color: #c3cccc;
 }
 
 #connection {
