@@ -3,6 +3,17 @@ if ((typeof(WebSocket) == 'undefined') && (typeof(MozWebSocket) != 'undefined'))
 	  WebSocket = MozWebSocket;
 }
 
+window.requestAnimFrame = (function(){
+    return  window.requestAnimationFrame       ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    ||
+    window.oRequestAnimationFrame      ||
+    window.msRequestAnimationFrame     ||
+    function( callback ){
+        window.setTimeout(callback, 1000 / 60);
+    };
+})();
+
 var Touchscreen = (function () {
 
 	var module = {};
@@ -19,6 +30,10 @@ var Touchscreen = (function () {
 		canvas.width = document.width;
 		canvas.height = document.height;
 		this.context = canvas.getContext("2d");
+        var bgcanvas = $('#canvas2')[0];
+        bgcanvas.width = document.width;
+        bgcanvas.height = document.height;
+        this.bgcontext = bgcanvas.getContext("2d");
 		this.initView();
 	}
 	
@@ -63,6 +78,7 @@ var Touchscreen = (function () {
 			$('#calibrate')[0].style.visibility = 'hidden';
 			$('#connection')[0].style.visibility = 'hidden';
 			$('#canvas1')[0].style.visibility = 'visible';
+            $('#canvas2')[0].style.visibility = 'visible';
 			module.initPlane();
 		}
 	}
@@ -82,6 +98,14 @@ var Touchscreen = (function () {
 		var x = this.screen.xu.dot(direction);
 		return {x: x, y: y};
 	};
+                   
+    module.drawLoop = function(){
+        requestAnimFrame(module.drawLoop);
+        module.context.drawImage(module.buffer1, 0, 0);
+        module.bgcontext.drawImage(module.buffer2, 0, 0);
+        module.buffercx2.fillStyle = 'rgba(255,255,255,.2)';
+        module.buffercx2.fillRect(0,0,document.width,document.height);
+    }
 
 	module.initPlane = function() {
 		
@@ -96,6 +120,16 @@ var Touchscreen = (function () {
 		var xscale = 2*xv.magnitude()/document.width;
 		this.screen.yu = yv.normalized().dividedBy(yscale);
 		this.screen.xu = xv.normalized().dividedBy(xscale);
+                   
+        this.buffer1 = document.createElement('canvas');
+        this.buffer1.width = document.width;
+        this.buffer1.height = document.height;
+        this.buffercx1 = this.buffer1.getContext('2d');
+        
+        this.buffer2 = document.createElement('canvas');
+        this.buffer2.width = document.width;
+        this.buffer2.height = document.height;
+        this.buffercx2 = this.buffer2.getContext('2d');
 		
 		this.listener.onFrame = function(controller){
 			var pointableList = controller.frame().pointables();
@@ -108,10 +142,10 @@ var Touchscreen = (function () {
 				var project = Touchscreen.plane.rayIntersect(pointable.tipPosition(), pointable.direction());
 				if(project){
 					var screenHit = module.translateToScreen(project.position);
-					module.context.beginPath();
-					module.context.arc(screenHit.x, screenHit.y, 10, 0, 2 * Math.PI, false);
-					module.context.fillStyle = 'rgba(200,200,200,.3)';
-					module.context.fill();
+					module.buffercx2.beginPath();
+					module.buffercx2.arc(screenHit.x, screenHit.y, 10, 0, 2 * Math.PI, false);
+					module.buffercx2.fillStyle = 'rgba(225,225,225,1)';
+					module.buffercx2.fill();
 				}
 				
 				var hit = Touchscreen.plane.pointIntersect(pointable.tipPosition());
@@ -119,10 +153,10 @@ var Touchscreen = (function () {
 					isHit = true;
 					
 					var screenHit = module.translateToScreen(hit.position);
-					module.context.beginPath();
-					module.context.arc(screenHit.x, screenHit.y, 5, 0, 2 * Math.PI, false);
-					module.context.fillStyle = 'rgba(0,0,0,1)';
-					module.context.fill();
+					module.buffercx1.beginPath();
+					module.buffercx1.arc(screenHit.x, screenHit.y, 5, 0, 2 * Math.PI, false);
+					module.buffercx1.fillStyle = 'rgba(0,0,0,1)';
+					module.buffercx1.fill();
 				}
 			}
 			
@@ -134,6 +168,8 @@ var Touchscreen = (function () {
 			//	$('body').css('background-color','#fff');
 			//}
 		};
+        
+        requestAnimFrame(module.drawLoop);
 		
 	};
 	
