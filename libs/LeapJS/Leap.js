@@ -111,18 +111,18 @@ Leap.Frame = function(frameData){
 		this._timestamp = null;
 		this._valid = false;
 		
-		this._r = new Leap.Matrix();
-		this._s = null;
-		this._t = new Leap.Vector();
+		this._rotation = new Leap.Matrix();
+		this._scale = null;
+		this._translation = new Leap.Vector();
 	}
 	else{
 		this._id = frameData.id;
 		this._timestamp = frameData.timestamp;
 		this._valid = true;
 		
-		this._r = new Leap.Matrix(frameData.r);
-		this._s = frameData.s;
-		this._t = new Leap.Vector(frameData.t);
+		this._rotation = new Leap.Matrix(frameData.r);
+		this._scale = frameData.s;
+		this._translation = new Leap.Vector(frameData.t);
 		
 		for(index in frameData.hands){
 		
@@ -170,23 +170,43 @@ Leap.Frame.prototype = {
 	},
 	
 	rotationAngle : function(sinceFrame, axis){
-		// TODO
+		// TODO: implement axis parameter
+		if (!this._valid || !sinceFrame._valid) return 0.0;
+		var rot = this.rotationMatrix(sinceFrame);
+		var cs = (rot.xBasis.x + rot.yBasis.y + rot.zBasis.z - 1.0)*0.5
+		var angle = Math.acos(cs);
+		return angle === NaN ? 0.0 : angle;
 	},
 	
 	rotationAxis : function(sinceFrame){
-		// TODO
+		if (!this._valid || !sinceFrame._valid) return Leap.Vector.zero();
+		var x = this._rotation.zBasis.y - sinceFrame._rotation.yBasis.z;
+		var y = this._rotation.xBasis.z - sinceFrame._rotation.zBasis.x;
+		var z = this._rotation.yBasis.x - sinceFrame._rotation.xBasis.y;
+		var vec = new Leap.Vector([x, y, z]);
+		return vec.normalize();
 	},
 	
 	rotationMatrix : function(sinceFrame){
-		// TODO
+		if (!this._valid || !sinceFrame._valid) return Leap.Matrix.identity();
+		var xBasis = new Leap.Vector([this._rotation.xBasis.x, this._rotation.yBasis.x, this._rotation.zBasis.x]);
+		var yBasis = new Leap.Vector([this._rotation.xBasis.y, this._rotation.yBasis.y, this._rotation.zBasis.y]);
+		var zBasis = new Leap.Vector([this._rotation.xBasis.z, this._rotation.yBasis.z, this._rotation.zBasis.z]);
+		var transpose = new Leap.Matrix([xBasis, yBasis, zBasis]);
+		return sinceFrame._rotation.multiply(transpose);
 	},
 	
 	scaleFactor : function(sinceFrame){
-		// TODO
+		if (!this._valid || !sinceFrame._valid) return 1.0;
+		return Math.exp(this._scale - sinceFrame._scale);
 	},
 	
 	translation : function(sinceFrame){
-		// TODO
+		if (!this.valid || !sinceFrame.valid) return Leap.Vector.zero();
+		var x = this._translation.x - sinceFrame._translation.x;
+		var y = this._translation.y - sinceFrame._translation.y;
+		var z = this._translation.z - sinceFrame._translation.z;
+		return new Leap.Vector([x, y, z]);
 	},
 	
 	finger : function(id){
@@ -263,9 +283,9 @@ Leap.Hand = function(handData, parentFrame){
 		this._id = null;
 		this._valid = false;
 		
-		this._r = new Leap.Matrix();
-		this._s = null;
-		this._t = new Leap.Vector();
+		this._rotation = new Leap.Matrix();
+		this._scale = null;
+		this._translation = new Leap.Vector();
 		
 		this._direction = new Leap.Vector();
 		this._palmNormal = new Leap.Vector();
@@ -280,9 +300,9 @@ Leap.Hand = function(handData, parentFrame){
 		this._id = handData.id;
 		this._valid = true;
 		
-		this._r = new Leap.Matrix(handData.r);
-		this._s = handData.s;
-		this._t = new Leap.Vector(handData.t);
+		this._rotation = new Leap.Matrix(handData.r);
+		this._scale = handData.s;
+		this._translation = new Leap.Vector(handData.t);
 		
 		this._direction = new Leap.Vector(handData.direction);
 		this._palmNormal = new Leap.Vector(handData.palmNormal);
@@ -328,23 +348,43 @@ Leap.Hand.prototype = {
 	},
 	
 	rotationAngle : function(sinceFrame, axis){
-		// TODO
+		// TODO: implement axis parameter
+		if (!this._valid || !sinceFrame._valid) return 0.0;
+		var rot = this.rotationMatrix(sinceFrame);
+		var cs = (rot.xBasis.x + rot.yBasis.y + rot.zBasis.z - 1.0)*0.5
+		var angle = Math.acos(cs);
+		return angle === NaN ? 0.0 : angle;
 	},
 	
 	rotationAxis : function(sinceFrame){
-		// TODO
+		if (!this._valid || !sinceFrame._valid) return Leap.Vector.zero();
+		var x = this._rotation.zBasis.y - sinceFrame._rotation.yBasis.z;
+		var y = this._rotation.xBasis.z - sinceFrame._rotation.zBasis.x;
+		var z = this._rotation.yBasis.x - sinceFrame._rotation.xBasis.y;
+		var vec = new Leap.Vector([x, y, z]);
+		return vec.normalize();
 	},
 	
 	rotationMatrix : function(sinceFrame){
-		// TODO
+		if (!this._valid || !sinceFrame._valid) return Leap.Matrix.identity();
+		var xBasis = new Leap.Vector([this._rotation.xBasis.x, this._rotation.yBasis.x, this._rotation.zBasis.x]);
+		var yBasis = new Leap.Vector([this._rotation.xBasis.y, this._rotation.yBasis.y, this._rotation.zBasis.y]);
+		var zBasis = new Leap.Vector([this._rotation.xBasis.z, this._rotation.yBasis.z, this._rotation.zBasis.z]);
+		var transpose = new Leap.Matrix([xBasis, yBasis, zBasis]);
+		return sinceFrame._rotation.multiply(transpose);
 	},
 	
 	scaleFactor : function(sinceFrame){
-		// TODO
+		if (!this._valid || !sinceFrame._valid) return 1.0;
+		return Math.exp(this._scale - sinceFrame._scale);
 	},
 	
 	translation : function(sinceFrame){
-		// TODO
+		if (!this.valid || !sinceFrame.valid) return Leap.Vector.zero();
+		var x = this._translation.x - sinceFrame._translation.x;
+		var y = this._translation.y - sinceFrame._translation.y;
+		var z = this._translation.z - sinceFrame._translation.z;
+		return new Leap.Vector([x, y, z]);
 	},
 	
 	finger : function(id){
@@ -545,6 +585,82 @@ Leap.Matrix.prototype = {
 
 Leap.Matrix.identity = function(){ return new Leap.Matrix(); };
 
+Leap.Plane = function(point1, point2, point3){
+	
+	this._point1 = new Leap.Vector(point1);
+	this._point2 = new Leap.Vector(point2);
+	this._point3 = new Leap.Vector(point3);
+};
+
+Leap.Plane.prototype = {
+	
+	normal : function(){
+		
+		var x21 = this._point2.x - this._point1.x;
+		var y21 = this._point2.y - this._point1.y;
+		var z21 = this._point2.z - this._point1.z;
+		
+		var x31 = this._point3.x - this._point1.x;
+		var y31 = this._point3.y - this._point1.y;
+		var z31 = this._point3.z - this._point1.z;
+		
+		var x = y21*z31 - y31*z21;
+		var y = x21*z31 - x31*z21;
+		var z = x21*y31 - x31*y21;
+		
+		if(x==0 && y==0 && z==0) this._normal = null;
+		else this._normal = new Leap.Vector([x, y, z]);
+		
+		this.normal = function(){ return this._normal; };
+		return this._normal;
+	},
+	
+	unitnormal : function(){
+		
+		var normal = this.normal();
+		if(n==null) return null;
+		
+		this._unitnormal = n.normalized();
+		
+		this.unitnormal = function(){ return this._unitnormal; };
+		return this._unitnormal;
+	},
+	
+	pointIntersect : function(point){
+		
+		var unitnormal = this.unitnormal();
+		var distance = unitnormal.dot(this._point1.minus(point));
+		var position = unitnormal.multiply(distance).plus(point);
+		
+		return {position: position, distance: distance};
+	},
+	
+	pointDistance : function(point){
+		
+		var unitnormal = this.unitnormal();
+		var distance = unitnormal.dot(this._point1.minus(point));
+		
+		return distance;
+	},
+	
+	rayIntersect : function(rayPosition, rayDirection){
+		
+		var d = rayDirection.dot(this.normal());
+	
+		if(d == 0) return null;
+		
+		var n = this._point1.minus(rayPosition).dot(this.normal());
+		var t =  n/d;
+		
+		//if(t < 0) return null;
+		
+		var intersect = rayPosition.plus(rayDirection.multiply(t));
+		var distance = t*rayDirection.magnitude();
+		
+		return {position: intersect, distance: distance};
+	}
+};
+
 Leap.Pointable = function(pointableData, parentHand, obj){
 	
 	if(obj==null) obj = this;
@@ -707,6 +823,60 @@ Leap.ToolList.prototype.empty = function(){
 	return this.length>0;
 };
 
+Leap.Screen = function(data){
+	
+	if(data){
+	
+		this._plane = new Leap.Plane(data[0],data[1],data[2]);
+		this._center = data[0].plus(data[2]).dividedBy(2);
+		this._origin = data[1].plus(data[1].minus(this._center));
+		
+		var xv = data[2].minus(data[0]);
+		var yv = data[0].minus(data[1]);
+		var xscale = 2*xv.magnitude()/document.width;
+		var yscale = 4*yv.magnitude()/document.height;
+		this._xspan = xv.normalized().dividedBy(xscale);
+		this._yspan = yv.normalized().dividedBy(yscale);
+		
+		this._valid = true;
+	}
+	else{
+	
+		this._plane = null;
+		this._valid = false;
+	}
+};
+
+Leap.Screen.prototype = {
+	
+	distanceToPoint : function(point){
+		return this._plane.pointDistance(point);
+	},
+	
+	intersect : function(pointable, normalize, clampRatio){
+		// TODO: Implement clampRatio
+		var intersect = this._plane.rayIntersect(pointable.tipPosition(), pointable.direction());
+		
+		if(normalize){ // Normalizes to 2D pixels
+			var direction = intersect.position.minus(this._origin);
+			var x = this._xspan.dot(direction);
+			var y = this._yspan.dot(direction);
+			intersect.position = new Leap.Vector([x, y, 0]);
+		}
+		
+		return intersect;
+	},
+	
+	normal : function(){
+		return this._plane.normal();
+	},
+	
+	isValid : function(){
+		return this._valid;
+	}
+};
+
+Leap.invalid = function(){ return new Leap.Screen(); };
 Leap.Vector = function(data){
 	
 	if(data instanceof Leap.Vector){
