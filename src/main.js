@@ -79,7 +79,7 @@ var Touchscreen = (function () {
 			$('#connection')[0].style.visibility = 'hidden';
 			$('#canvas1')[0].style.visibility = 'visible';
             $('#canvas2')[0].style.visibility = 'visible';
-			module.initPlane();
+			setTimeout( function(){ module.initPlane(); }, 500);
 		}
 	}
 
@@ -88,6 +88,7 @@ var Touchscreen = (function () {
 		this.output = $('#output');
 		$('#calibrate').on('click', function(){
 			$('#point1')[0].style.visibility = 'visible';
+			$('#calibrate').off('click');
 			$('#calibrate').on('click', module.calibrate1);
 		});
 	};
@@ -105,7 +106,7 @@ var Touchscreen = (function () {
         module.bgcontext.drawImage(module.buffer2, 0, 0);
         module.buffercx2.fillStyle = 'rgba(255,255,255,.2)';
         module.buffercx2.fillRect(0,0,document.width,document.height);
-    }
+    };
 
 	module.initPlane = function() {
 		
@@ -133,30 +134,51 @@ var Touchscreen = (function () {
 		
 		this.listener.onFrame = function(controller){
 			var pointableList = controller.frame().pointables();
+			var lastPointableList = controller.frame(1).pointables();
 			var isHit = false;
 			
 			for(index = 0; index < pointableList.count(); index++){
 			
 				var pointable = pointableList[index];
-				
 				var project = Touchscreen.plane.rayIntersect(pointable.tipPosition(), pointable.direction());
+				
 				if(project){
 					var screenHit = module.translateToScreen(project.position);
+					
 					module.buffercx2.beginPath();
 					module.buffercx2.arc(screenHit.x, screenHit.y, 10, 0, 2 * Math.PI, false);
 					module.buffercx2.fillStyle = 'rgba(225,225,225,1)';
 					module.buffercx2.fill();
-				}
-				
-				var hit = Touchscreen.plane.pointIntersect(pointable.tipPosition());
-				if (hit && hit.distance < 2) {
-					isHit = true;
 					
-					var screenHit = module.translateToScreen(hit.position);
-					module.buffercx1.beginPath();
-					module.buffercx1.arc(screenHit.x, screenHit.y, 5, 0, 2 * Math.PI, false);
-					module.buffercx1.fillStyle = 'rgba(0,0,0,1)';
-					module.buffercx1.fill();
+					if(index < lastPointableList.count()){
+						var lastPointable = lastPointableList[index];
+						var lastProject = Touchscreen.plane.rayIntersect(lastPointable.tipPosition(), lastPointable.direction());
+						
+						if(lastProject && project.distance < 40 && project.distance > -40 && lastProject.distance < 40 && lastProject.distance > -40){
+							var lastHit = module.translateToScreen(lastProject.position);
+							
+							var size = (80 - project.distance - lastProject.distance)/2;
+							module.buffercx1.beginPath();
+							module.buffercx1.moveTo(lastHit.x, lastHit.y);
+							module.buffercx1.lineTo(screenHit.x, screenHit.y);
+							module.buffercx1.lineWidth = size;
+							module.buffercx1.strokeStyle = 'rgba(0,0,0,1)';
+							module.buffercx1.stroke();
+							
+							module.buffercx1.beginPath();
+							module.buffercx1.arc(screenHit.x, screenHit.y, size/2, 0, 2 * Math.PI, false);
+							module.buffercx1.fillStyle = 'rgba(0,0,0,1)';
+							module.buffercx1.fill();
+							
+							module.buffercx1.beginPath();
+							module.buffercx1.arc(lastHit.x, lastHit.y, size/2, 0, 2 * Math.PI, false);
+							module.buffercx1.fillStyle = 'rgba(0,0,0,1)';
+							module.buffercx1.fill();
+						}
+					}
+					else{
+						
+					}
 				}
 			}
 			

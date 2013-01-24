@@ -79,51 +79,20 @@ Plane.prototype.pointIntersect = function(point){
 	
 };
 
-// rayIntersection memo
-Plane.prototype._rayIntersectCommon = function(){
-	
-	this.x21 = this.point2.x - this.point1.x;
-	this.x13 = this.point1.x - this.point3.x;
-	this.x32 = this.point3.x - this.point2.x;
-	
-	this.yz23 = this.point2.y*this.point3.z - this.point3.y*this.point2.z;
-	this.yz13 = this.point1.y*this.point3.z - this.point3.y*this.point1.z;
-	this.yz12 = this.point1.y*this.point2.z - this.point2.y*this.point1.z;
-	
-	this._rayIntersectCommon = function(){};
-};
-
 // { position: vector, distance: float } rayIntersect( vector rayPosition, vector rayDirection )
 Plane.prototype.rayIntersect = function(rayPosition, rayDirection){
 	
-	this._rayIntersectCommon();
-	
-	var yz36 = this.point3.y*rayDirection.z - rayDirection.y*this.point3.z;
-	var yz26 = this.point2.y*rayDirection.z - rayDirection.y*this.point2.z;
-	var x6 = rayDirection.x*(this.yz23 - this.yz13 + this.yz12);
-	
-	var d = (this.x21*yz36 + this.x13*yz26 + x6);
+	var d = rayDirection.dot(this.normal());
 	
 	if(d == 0) return null;
 	
-	var x41 = rayPosition.x - this.point1.x;
-	var x24 = this.point2.x - rayPosition.x;
-	var x43 = rayPosition.x - this.point3.x;
+	var n = this.point1.minus(rayPosition).dot(this.normal());
+	var t =  n/d;
 	
-	var yz34 = this.point3.y*rayPosition.z - rayPosition.y*this.point3.z;
-	var yz24 = this.point2.y*rayPosition.z - rayPosition.y*this.point2.z;
-	var yz14 = this.point1.y*rayPosition.z - rayPosition.y*this.point1.z;
+	//if(t < 0) return null;
 	
-	var n = (this.x21*yz34 + this.x13*yz24 + x41*this.yz23 + this.x32*yz14 + x24*this.yz13 + x43*this.yz12);
-	var t =  -n/d;
-	
-	if(t < 0) return null;
-	
-	var x = rayPosition.x + rayDirection.x*t;
-	var y = rayPosition.y + rayDirection.y*t;
-	var z = rayPosition.z + rayDirection.z*t;
-	
+	var intersect = rayPosition.plus(rayDirection.multiply(t));
 	var distance = t*rayDirection.magnitude();
 	
-	return {position: new Leap.Vector([x, y, z]), distance: distance};
+	return {position: intersect, distance: distance};
 };
